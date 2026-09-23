@@ -3,125 +3,166 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b0d12">
-<meta name="description" content="Read Instagram and campaign metrics through MCP. Prepare scoped campaign changes, review them outside the agent, then commit against fresh provider state.">
-<title>meta-ops-mcp — agent tools by Lucas Araujo</title>
+<meta name="theme-color" content="#e8ede8">
+<meta name="description" content="Seven named MCP tools for Instagram insight and approval-gated Meta campaign changes.">
+<title>Meta Ops MCP — Lucas Araujo</title>
 <link rel="stylesheet" href="./site.css">
 </head>
-<body style="--accent:#b9c7ff;--ink:#22377a">
+<body>
 <header class="top">
-<div class="wrap">
-<a class="brand" href="./">lucas<span>/</span>meta-ops-mcp</a>
-<nav class="nav" aria-label="Main navigation">
-<a href="#how">How it works</a>
-<a href="https://github.com/lucasaraujonrt/meta-ops-mcp/blob/main/README.md">README</a>
+<a href="#top" class="logo">
+<span class="mark">M/O</span>
+<span>Meta Ops MCP</span>
+</a>
+<nav>
+<a href="#tools">Tool roster</a>
+<a href="#change">Campaign change</a>
 <a href="https://github.com/lucasaraujonrt/meta-ops-mcp">GitHub ↗</a>
 </nav>
-</div>
 </header>
-<main>
-<div class="wrap">
-<section class="hero">
+<main id="top">
+<section class="hero shell">
+<div class="hero-text">
+<p class="eyebrow">STDIO MCP SERVER / META GRAPH</p>
+<h1>Seven named tools. <br>One narrow write path.</h1>
+<p>Seven named tools let an agent inspect Instagram and campaign performance. A campaign mutation needs a saved plan, a separate approval, a fresh-state check, and a verified provider response.</p>
+<a class="underline" href="#tools">Inspect the tool roster ↓</a>
+</div>
+<div class="panel" aria-label="Example campaign plan">
+<div class="panel-head">
+<span>CAMPAIGN CHANGE PLAN</span>
+<span>example / expires in 15m</span>
+</div>
+<div class="panel-body">
+<div class="data-row">
+<span>account</span>
+<strong>configured ad account</strong>
+</div>
+<div class="data-row">
+<span>campaign</span>
+<strong>demo-789</strong>
+</div>
+<div class="data-row">
+<span>field</span>
+<strong>status</strong>
+</div>
+<div class="data-row">
+<span>current</span>
+<strong>ACTIVE</strong>
+</div>
+<div class="arrow-row">↓ reviewer checks the exact change</div>
+<div class="data-row proposed">
+<span>proposed</span>
+<strong>PAUSED</strong>
+</div>
+</div>
+<p>Fictional IDs. This page never contacts Meta.</p>
+</div>
+</section>
+<section class="tools" id="tools">
+<div class="shell">
+<div class="section-heading">
+<p class="eyebrow">01 / THE INTERFACE</p>
+<h2>No arbitrary Graph POST exposed to the agent.</h2>
+<p>The public server has five read operations and two scoped write operations. Its original Inker ancestor had a generic Graph escape hatch; this release removed it.</p>
+</div>
+<div class="tool-grid">
+<div class="tool-group">
+<h3>Read Instagram</h3>
+<div class="tool-row">
+<code>list_instagram_media</code>
+<span>Recent posts from the configured account</span>
+</div>
+<div class="tool-row">
+<code>get_media_insights</code>
+<span>Metrics for one media ID</span>
+</div>
+<div class="tool-row">
+<code>get_account_insights</code>
+<span>Account-level metrics</span>
+</div>
+</div>
+<div class="tool-group">
+<h3>Read campaigns</h3>
+<div class="tool-row">
+<code>list_campaigns</code>
+<span>Campaigns in the configured ad account</span>
+</div>
+<div class="tool-row">
+<code>get_campaign_insights</code>
+<span>Daily metrics for 7 or 30 days</span>
+</div>
+</div>
+<div class="tool-group write-tools">
+<h3>Change one campaign</h3>
+<div class="tool-row">
+<code>prepare_campaign_change</code>
+<span>Check account, currency, caps, and current value; save a 15-minute plan</span>
+</div>
+<div class="tool-row">
+<code>commit_campaign_change</code>
+<span>Claim an approved plan, send one POST, then read the field back</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="change shell" id="change">
+<div class="section-heading">
+<p class="eyebrow">02 / WRITE PATH</p>
+<h2>A plan expires. Approval stays outside MCP.</h2>
+<p>The approval CLI is a separate process. Do not add it to the agent's tool list.</p>
+</div>
+<ol class="steps">
+<li>
+<span>1</span>
 <div>
-<span class="eyebrow">03 / MCP FOR META OPERATIONS</span>
-<h1>Give agents named Meta operations.</h1>
-<p class="lead">Read Instagram and campaign metrics through MCP. Prepare scoped campaign changes, review them outside the agent, then commit against fresh provider state.</p>
-<div class="actions">
-<a class="button" href="#how">Explore the flow <span aria-hidden="true">↓</span>
-</a>
-<a class="button secondary" href="https://github.com/lucasaraujonrt/meta-ops-mcp">View source <span aria-hidden="true">↗</span>
-</a>
+<h3>Agent prepares</h3>
+<p>
+<code>prepare_campaign_change</code> reads the campaign and account, verifies ownership and currency, applies configured budget caps, and stores the previous and proposed values.</p>
 </div>
-</div>
-<aside class="hero-side" aria-label="Project details">
-<p>Built for coding agents. The page shows the contract and a synthetic flow; the repository contains the implementation.</p>
-<span class="tag">MCP over stdio</span>
-<span class="tag">Meta Graph API</span>
-<span class="tag">Scoped writes</span>
-</aside>
-</section>
-</div>
-<hr class="rule">
-<section class="section wrap">
-<div class="section-head">
-<span class="section-label">THE IDEA</span>
+</li>
+<li>
+<span>2</span>
 <div>
-<h2>Why use named tools?</h2>
-<p class="section-intro">A generic Graph POST lets an agent reach far beyond the task. Named tools make the available reads and campaign changes visible, reviewable, and narrow.</p>
+<h3>Person reviews</h3>
+<p>A trusted operator checks the campaign ID, kind, value, and expiry, then runs the approval command with the same <code>META_OPS_DB</code> as the server.</p>
+<pre>bun run src/approve.ts PLAN_ID 789:status:PAUSED</pre>
 </div>
-</div>
-<div class="cards">
-<article class="card">
-<span class="index">01</span>
-<h3>Seven MCP tools</h3>
-<p>Five read tools plus prepare_campaign_change and commit_campaign_change.</p>
-</article>
-<article class="card">
-<span class="index">02</span>
-<h3>Exact change plan</h3>
-<p>A 15-minute plan records account, campaign, prior value, new value, and limits.</p>
-</article>
-<article class="card">
-<span class="index">03</span>
-<h3>Fresh-state check</h3>
-<p>Commit verifies the campaign still has the value that was reviewed.</p>
-</article>
-</div>
-</section>
-<hr class="rule">
-<section class="section wrap" id="how">
-<div class="section-head">
-<span class="section-label">STATE WALKTHROUGH</span>
+</li>
+<li>
+<span>3</span>
 <div>
-<h2>See the states an agent handles.</h2>
-<p class="section-intro">Select a step to inspect a possible state. Every value here is fictional.</p>
+<h3>Agent commits</h3>
+<p>
+<code>commit_campaign_change</code> fetches the campaign again. If its previous value changed, commit stops. Otherwise it claims the plan, sends one Graph POST, and reads back the result.</p>
 </div>
+</li>
+</ol>
+</section>
+<section class="uncertain">
+<div class="shell uncertain-grid">
+<div>
+<p class="eyebrow">03 / WHEN META DOESN'T ANSWER CLEARLY</p>
+<h2>“Uncertain” is a real state.</h2>
 </div>
-<div class="demo">
-<div class="demo-nav" role="group" aria-label="Example flow steps">
-<button class="demo-step" type="button" aria-pressed="false" data-state="observed" data-output="{&quot;campaign&quot;:&quot;demo-789&quot;,&quot;status&quot;:&quot;ACTIVE&quot;,&quot;currency&quot;:&quot;BRL&quot;}">
-<span class="num">01</span>Read</button>
-<button class="demo-step" type="button" aria-pressed="false" data-state="pending" data-output="{&quot;plan&quot;:&quot;demo-plan&quot;,&quot;change&quot;:&quot;ACTIVE → PAUSED&quot;,&quot;expiresIn&quot;:&quot;15m&quot;}">
-<span class="num">02</span>Prepare</button>
-<button class="demo-step" type="button" aria-pressed="false" data-state="approved" data-output="{&quot;approvedBy&quot;:&quot;trusted-shell&quot;,&quot;plan&quot;:&quot;demo-plan&quot;}">
-<span class="num">03</span>Approve</button>
-<button class="demo-step" type="button" aria-pressed="false" data-state="verified" data-output="{&quot;campaign&quot;:&quot;demo-789&quot;,&quot;status&quot;:&quot;PAUSED&quot;,&quot;verified&quot;:true}">
-<span class="num">04</span>Commit</button>
-</div>
-<div class="demo-view">
-<div class="demo-top">
-<span class="demo-caption">Example output</span>
-<span class="pill" id="demo-state" aria-live="polite">
-</span>
-</div>
-<pre id="demo-output" aria-live="polite">
-</pre>
-<p class="demo-note">Synthetic example. No provider call, charge, or data write occurs on this page.</p>
+<div>
+<p>Once the POST starts, a timeout or failed verification may leave the campaign changed. The plan cannot be replayed. Inspect the campaign in Meta before deciding whether to prepare a new change.</p>
+<p>Budget amounts use the ad account's minor currency unit. For BRL, <code>5000</code> is R$50. The server enforces configured daily and lifetime caps.</p>
 </div>
 </div>
 </section>
-<section class="wrap" style="padding-bottom:84px">
-<div class="boundary">
-<span class="section-label">THE BOUNDARY</span>
-<p>The approval CLI must stay outside the agent tool surface. Budget values use the account’s minor currency units; ambiguous Meta responses require inspection.</p>
-</div>
-</section>
-<section class="end">
-<div class="wrap">
-<h2>See the implementation and its limits.</h2>
-<a class="button" href="https://github.com/lucasaraujonrt/meta-ops-mcp/blob/main/docs/architecture.md">Read the tool and approval contract ↗</a>
+<section class="end shell">
+<p>The host controls the access token and who may call this MCP server. The local SQLite plan database is private operational state.</p>
+<div>
+<a href="https://github.com/lucasaraujonrt/meta-ops-mcp/blob/main/README.md">Set up the server ↗</a>
+<a href="https://github.com/lucasaraujonrt/meta-ops-mcp/blob/main/docs/architecture.md">Read architecture ↗</a>
 </div>
 </section>
 </main>
-<footer class="footer">
-<div class="wrap">
-<span>Open source by Lucas Araujo · meta-ops-mcp</span>
-<span>
-<a href="https://github.com/lucasaraujonrt/meta-ops-mcp">Source</a> · <a href="https://github.com/lucasaraujonrt/meta-ops-mcp/blob/main/README.md">Setup</a> · <a href="https://github.com/lucasaraujonrt/meta-ops-mcp/blob/main/LICENSE">License</a>
-</span>
-</div>
+<footer>
+<span>Meta Ops MCP · Lucas Araujo</span>
+<span>MIT · Example data only</span>
 </footer>
-<script src="./site.js" defer>
-</script>
 </body>
 </html>
