@@ -1,5 +1,6 @@
 # Meta Ops MCP
 
+**Project site:** https://lucasaraujonrt.github.io/meta-ops-mcp/
 An agent-facing MCP server for Instagram insights and scoped Meta Ads operations. It is a clean extraction of Inker's Meta Graph tooling. It replaces the original arbitrary Graph POST tool with explicit campaign changes that require out-of-band approval.
 
 ## Tools
